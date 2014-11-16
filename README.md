@@ -34,6 +34,9 @@ docker run -d -p 80:80 -p 8000:8000 -p 9200:9200 -p 8125:8125/udp -p 8126:8126 n
 ### Using the Dashboard ###
 
 Once your container is running all you need to do is open your browser pointing to [Grafana](http://localhost/)
+
 Learning:
+
 [Good video](http://grafana.org/blog/2014/05/25/monitorama-video-and-update.html)
+
 [Good examples](http://play.grafana.org/)
