@@ -1,9 +1,13 @@
 #
-# Based on 
+# Based on
 #	https://github.com/cazcade/docker-grafana-graphite
 #
 FROM ubuntu:14.04
+MAINTAINER scullduggery@gmail.com
+
 RUN echo 'deb http://us.archive.ubuntu.com/ubuntu/ trusty universe' >> /etc/apt/sources.list
+# Logstash
+RUN echo 'deb http://packages.elasticsearch.org/logstash/1.4/debian stable main' >> /etc/apt/sources.list.d/logstash.list
 RUN apt-get -y update
 RUN apt-get -y upgrade
 
@@ -22,6 +26,10 @@ RUN apt-get -y install openjdk-7-jre
 RUN cd ~ && wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.0.deb
 RUN cd ~ && dpkg -i elasticsearch-1.4.0.deb && rm elasticsearch-1.4.0.deb
 
+# Install Redis, Logstash
+RUN (wget -O - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add -) && apt-get -y update
+RUN apt-get -y install redis-server logstash
+
 # Install StatsD
 RUN mkdir /src && git clone https://github.com/etsy/statsd.git /src/statsd
 
@@ -37,10 +45,20 @@ RUN mkdir /src/grafana && cd /src/grafana &&\
  wget http://grafanarel.s3.amazonaws.com/grafana-1.8.1.tar.gz &&\
  tar xzvf grafana-1.8.1.tar.gz --strip-components=1 && rm grafana-1.8.1.tar.gz
 
+# Install Kibana
+RUN mkdir /src/kibana && cd /src/kibana &&\
+ wget https://download.elasticsearch.org/kibana/kibana/kibana-3.1.2.tar.gz &&\
+ tar xzvf kibana-3.1.2.tar.gz --strip-components=1 && rm kibana-3.1.2.tar.gz
+
 # Configure Elasticsearch
 ADD ./elasticsearch/run /usr/local/bin/run_elasticsearch
+RUN chmod +x /usr/local/bin/run_elasticsearch
 RUN chown -R elasticsearch:elasticsearch /var/lib/elasticsearch
 RUN mkdir -p /tmp/elasticsearch && chown elasticsearch:elasticsearch /tmp/elasticsearch
+
+# Configure Logstash
+ADD ./logstash/001-redis-input.conf /etc/logstash/conf.d/001-redis-input.conf
+ADD ./logstash/999-elasticsearch-output.conf /etc/logstash/conf.d/999-elasticsearch-output.conf
 
 # Confiure StatsD
 ADD ./statsd/config.js /src/statsd/config.js
@@ -61,7 +79,9 @@ RUN cd /var/lib/graphite/webapp/graphite && python manage.py syncdb --noinput
 
 # Configure Grafana
 ADD ./grafana/config.js /src/grafana/config.js
-#ADD ./grafana/scripted.json /src/grafana/app/dashboards/default.json
+
+# Configure Kibana
+ADD ./kibana/config.js /src/kibana/config.js
 
 # Configure nginx and supervisord
 ADD ./nginx/nginx.conf /etc/nginx/nginx.conf
@@ -70,8 +90,17 @@ ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Grafana
 EXPOSE 80
 
-# Graphite ??
+# Kibana
+EXPOSE 81
+
+# Graphite (Carbon)
+EXPOSE 2003
+
+# Graphite web-ui
 EXPOSE 8000
+
+# Redis
+EXPOSE 6379
 
 # Elasticserach
 EXPOSE 9200
@@ -80,9 +109,8 @@ EXPOSE 9200
 EXPOSE 8125/udp
 EXPOSE 8126
 
-
 VOLUME ["/var/lib/elasticsearch"]
 VOLUME ["/opt/graphite/storage/whisper"]
 VOLUME ["/var/lib/log/supervisor"]
 
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker rm $(docker ps -a | grep Exited | awk '{print $1}')
+docker rmi $(docker images -q --filter "dangling=true")

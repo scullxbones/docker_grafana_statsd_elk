@@ -50,7 +50,7 @@ ES_HOME=/usr/share/$NAME
 #ES_DIRECT_SIZE=
 
 # Additional Java OPTS
-#ES_JAVA_OPTS=
+ES_JAVA_OPTS="-Djava.net.preferIPv4Stack=true"
 
 # Maximum number of open files
 MAX_OPEN_FILES=65535
