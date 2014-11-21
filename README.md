@@ -9,7 +9,7 @@ There are two ways for using this image:
 
 ### Using the Docker Index ###
 
-(TBD: Not available yet)
+Pull from docker hub with `docker pull scullxbones/docker-grafana-statsd-elk`
 
 The container exposes the following ports:
 
