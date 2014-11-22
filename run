@@ -1,4 +1,5 @@
 #!/bin/bash
 
-docker run -p 2222:22 -p 81:80 -p 82:81 -p :6379:6379 -p 2003:2003 -p 8000:8000 -p 9200:9200 -p 8125:8125/udp \
-           --name grafana_statsd_elk -d scullxbones/grafana_statsd_elk
+docker run -p 81:80 -p 82:81 -p :6379:6379 -p 2003:2003 -p 8000:8000 -p 9200:9200 -p 8125:8125/udp -p 4560:4560 \
+	   --volumes-from grafana_statsd_elk_data \
+	   --name grafana_statsd_elk -d scullxbones/grafana_statsd_elk:latest

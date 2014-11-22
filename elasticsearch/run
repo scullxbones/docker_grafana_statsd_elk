@@ -59,10 +59,10 @@ MAX_OPEN_FILES=65535
 #MAX_LOCKED_MEMORY=
 
 # Elasticsearch log directory
-LOG_DIR=/var/log/$NAME
+LOG_DIR=/logs/$NAME
 
 # Elasticsearch data directory
-DATA_DIR=/var/lib/$NAME
+DATA_DIR=/data/$NAME
 
 # Elasticsearch work directory
 WORK_DIR=/tmp/$NAME

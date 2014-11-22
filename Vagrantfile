@@ -1,16 +1,15 @@
-Vagrant.configure("2") do |config|
-	config.vm.box = "grafana_statsd_elk"
-	config.vm.box_url = "http://files.vagrantup.com/trusty64.box"
-	config.vm.provider :virtualbox do |virtualbox|
-        virtualbox.customize ["modifyvm", :id, "--memory", "2048"]
-        virtualbox.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
-      end
-	config.vm.network :forwarded_port, host: 8888, guest: 80
-	config.vm.network :forwarded_port, host: 8000, guest: 8000
-	config.vm.network :forwarded_port, host: 8125, guest: 8125, protocol: 'udp'
-	config.vm.network :forwarded_port, host: 8126, guest: 8126
-	config.vm.network :forwarded_port, host: 9200, guest: 9200
-	config.vm.network :forwarded_port, host: 9300, guest: 9300
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
 
-	config.vm.provision "docker"
+Vagrant.configure("2") do |config|
+  config.vm.define "grafana_statsd_elk" do |a|
+    a.vm.provider "docker" do |d|
+      d.build_dir = "."
+      d.build_args = ["-t=scullxbones/grafana_statsd_elk"]
+      d.ports = ["80:80","81:81","6379:6379","2003:2003","8000:8000","9200:9200","8125:8125/udp","4560:4560"]
+      d.name = "grafana_statsd_elk"
+      d.remains_running = true
+      d.vagrant_machine = "dockerhost"
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+    end
+  end
 end

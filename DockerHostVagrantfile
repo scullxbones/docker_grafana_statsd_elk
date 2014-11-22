@@ -1,0 +1,28 @@
+Vagrant.configure("2") do |config|
+
+  config.vm.provision "docker"
+
+  # The following line terminates all ssh connections. Therefore
+  # Vagrant will be forced to reconnect.
+  # That's a workaround to have the docker command in the PATH
+  config.vm.provision "shell", inline:
+    "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+
+  config.vm.define "dockerhost"
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network :forwarded_port, host: 81, guest: 80
+  config.vm.network :forwarded_port, host: 82, guest: 81
+  config.vm.network :forwarded_port, host: 8000, guest: 8000
+  config.vm.network :forwarded_port, host: 8125, guest: 8125, protocol: 'udp'
+  config.vm.network :forwarded_port, host: 8126, guest: 8126
+  config.vm.network :forwarded_port, host: 9200, guest: 9200
+  config.vm.network :forwarded_port, host: 8000, guest: 8000
+  config.vm.network :forwarded_port, host: 4560, guest: 4560
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "dockerhost"
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+  end
+
+end
