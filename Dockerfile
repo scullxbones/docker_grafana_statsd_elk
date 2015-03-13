@@ -115,7 +115,7 @@ EXPOSE 9200
 EXPOSE 8125/udp
 EXPOSE 8126
 
-VOLUME ["/data/graphite","/data/elasticsearch",]
+VOLUME ["/data/graphite","/data/elasticsearch"]
 VOLUME ["/logs/elasticsearch","/logs/supervisor","/logs/nginx"]
 
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
