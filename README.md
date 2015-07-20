@@ -25,7 +25,7 @@ The container exposes the following ports:
 To start a container with this image you just need to run the following command:
 
 ```bash
-docker run -d -p 80:80 -p 81:81 -p 8125:8125/udp --name grafana scullxbones/docker_grafana_statsd_elk
+docker run -d -p 80:80 -p 81:81 -p 8125:8125/udp --name grafana scullxbones/docker-grafana-statsd-elk
 ```
 
 ### Building the image yourself ###
